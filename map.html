@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#0F141A}
+  body.light{background:#EFEAE1}
+  #frame{position:absolute;inset:-2px;border:0;width:calc(100% + 4px);height:calc(100% + 4px);display:block;
+    filter:grayscale(1) invert(.94) brightness(1.08) contrast(.66) sepia(.26) saturate(.5) opacity(.74);
+    pointer-events:none;transition:filter .9s cubic-bezier(.22,1,.36,1),opacity .9s ease}
+  body.light #frame{filter:grayscale(1) contrast(.72) brightness(1.08) sepia(.3) saturate(.42) opacity(.78)}
+  body.live #frame{pointer-events:auto;filter:grayscale(.55) invert(.9) brightness(1.06) contrast(.8) sepia(.14) saturate(.7) opacity(.92)}
+  body.light.live #frame{filter:grayscale(.4) contrast(.86) brightness(1.04) sepia(.14) saturate(.7) opacity(.95)}
+  /* map dissolves into the page — no hard square edge */
+  #veil{position:absolute;inset:0;z-index:2;
+    background:radial-gradient(112% 92% at 50% 46%,rgba(15,20,26,0) 24%,rgba(15,20,26,.4) 64%,rgba(15,20,26,.96) 100%),
+               linear-gradient(to top,rgba(15,20,26,.62),rgba(15,20,26,0) 32%)}
+  body.light #veil{background:radial-gradient(112% 92% at 50% 46%,rgba(239,234,225,0) 26%,rgba(239,234,225,.38) 66%,rgba(239,234,225,.96) 100%),
+               linear-gradient(to top,rgba(239,234,225,.58),rgba(239,234,225,0) 30%)}
+  body.live #veil{pointer-events:none;opacity:.6;transition:opacity .9s ease}
+  /* bespoke site marker */
+  #pin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;pointer-events:none}
+  #pin i{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:1px solid rgba(168,110,92,.5);border-radius:50%;display:block}
+  #pin i.r1{width:15px;height:15px;border-color:#A86E5C}
+  #pin i.r2,#pin i.r3{width:54px;height:54px;animation:pulse 4.8s cubic-bezier(.22,1,.36,1) infinite}
+  #pin i.r3{animation-delay:2.4s}
+  #pin b{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:#A86E5C;box-shadow:0 0 0 6px rgba(168,110,92,.16)}
+  #pin u{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:block;background:rgba(168,110,92,.34)}
+  #pin u.h{width:150px;height:1px}
+  #pin u.v{width:1px;height:150px}
+  #pin span{position:absolute;left:50%;top:44px;transform:translateX(-50%);white-space:nowrap;
+    font:500 9.5px 'Jost',system-ui,sans-serif;letter-spacing:.28em;text-transform:uppercase;color:#E8E2D8;text-shadow:0 1px 12px rgba(0,0,0,.9)}
+  body.light #pin span{color:#3A424E;text-shadow:0 1px 12px rgba(255,255,255,.95)}
+  @keyframes pulse{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}20%{opacity:.65}100%{transform:translate(-50%,-50%) scale(2.6);opacity:0}}
+  /* click-to-activate: no scroll trapping */
+  #hint{position:absolute;left:0;right:0;bottom:0;z-index:4;display:flex;align-items:center;justify-content:center;gap:12px;
+    padding:0 0 16px;font:500 9.5px 'Jost',system-ui,sans-serif;letter-spacing:.26em;text-transform:uppercase;
+    color:rgba(255,255,255,.5);white-space:nowrap;pointer-events:none;transition:opacity .7s ease}
+  body.light #hint{color:rgba(42,51,64,.45)}
+  body.live #hint{opacity:0}
+  #hint em{display:block;width:20px;height:1px;background:currentColor;font-style:normal}
+</style>
+</head>
+<body>
+<iframe id="frame" title="Locality map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+<div id="veil"></div>
+<div id="pin"><u class="h"></u><u class="v"></u><i class="r2"></i><i class="r3"></i><i class="r1"></i><b></b><span id="lab"></span></div>
+<div id="hint"><em></em><span>Click map to explore</span><em></em></div>
+<script>
+  var q = new URLSearchParams(location.search);
+  if (q.get('theme') === 'light') document.body.classList.add('light');
+  var lat = q.get('lat') || '19.196639', lng = q.get('lng') || '72.873472', z = q.get('z') || '16';
+  document.getElementById('lab').textContent = (q.get('label') || 'AVASA');
+  // coordinate query = plain pin, no business info-window card
+  document.getElementById('frame').src =
+    'https://maps.google.com/maps?q=' + encodeURIComponent(lat + ',' + lng) + '&z=' + encodeURIComponent(z) + '&output=embed';
+  function activate(){ document.body.classList.add('live'); }
+  document.getElementById('veil').addEventListener('click', activate);
+  document.getElementById('hint').addEventListener('click', activate);
+</script>
+</body>
+</html>
